@@ -2,17 +2,19 @@ import React, { useEffect, useState } from "react"
 import { Form, Formik, Field } from "formik"
 
 export default function Home() {
-  interface Data  {
-    ref : object,
-    ts: number,
-    data : {
-      message : string
+  interface Data {
+    ref: object
+    ts: number
+    data: {
+      message: string
     }
   }
   const [data, setData] = useState<null | Data[]>()
-  const [fetchData , setFetchData] = useState(false)
+  const [fetchData, setFetchData] = useState(false)
+  const [update, setUpdate] = useState(false)
+  const [loading , setLoading] = useState(false)
   useEffect(() => {
-    (async () => {
+    ;(async () => {
       await fetch("/.netlify/functions/read")
         .then(res => res.json())
         .then(data => {
@@ -21,20 +23,22 @@ export default function Home() {
           setData(data)
         })
     })()
-  } , [fetchData])
-  const updateMessage = (message) => {
-    fetch("/.netlify/functions/update", {
+  }, [fetchData])
+
+  const updateMessage = async(message) => {
+    await fetch("/.netlify/functions/update", {
       method: "post",
       body: JSON.stringify(message),
     })
-    setFetchData(true)
   }
-  const deleteMessage = (message) => {
-    console.log(message);
-    fetch("/.netlify/functions/delete", {
+  const deleteMessage = async(message) => {
+    setLoading(true)
+    await fetch("/.netlify/functions/delete", {
       method: "post",
       body: JSON.stringify({ id: message.ref["@ref"].id }),
     })
+    setFetchData(true)
+    setLoading(false)
   }
   return (
     <div>
@@ -76,23 +80,32 @@ export default function Home() {
         </Formik>
       </div>
       {data === null || data === undefined ? (
-      <div>
-        <h5>loading...</h5>
-      </div>) : (
-      <div>
-        {data.map((mes , i) => (
-          <div key={i}>
-            <p>{mes.data.message}</p>
-            <button onClick={() => {
-              updateMessage(mes)
-            }}>update</button>
-            <button onClick={() => {
-              deleteMessage(mes)
-            }}>del</button>
-          </div>
-        ))}
-      </div>
-      ) }
+        <div>
+          <h5>loading...</h5>
+        </div>
+      ) : (
+        <div>
+          {data.map((mes, i) => (
+            <div key={i}>
+              <p>{mes.data.message}</p>
+              <button
+                onClick={() => {
+                  updateMessage(mes)
+                }}
+              >
+                update
+              </button>
+              <button
+                onClick={() => {
+                  deleteMessage(mes)
+                }}
+              >
+                del
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
