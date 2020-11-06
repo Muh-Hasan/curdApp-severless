@@ -23,10 +23,18 @@ export default function Home() {
     })()
   } , [fetchData])
   const updateMessage = (message) => {
-    console.log(message);
+    fetch("/.netlify/functions/update", {
+      method: "post",
+      body: JSON.stringify(message),
+    })
+    setFetchData(true)
   }
   const deleteMessage = (message) => {
     console.log(message);
+    fetch("/.netlify/functions/delete", {
+      method: "post",
+      body: JSON.stringify({ id: message.ref["@ref"].id }),
+    })
   }
   return (
     <div>
@@ -76,10 +84,10 @@ export default function Home() {
           <div key={i}>
             <p>{mes.data.message}</p>
             <button onClick={() => {
-              updateMessage(mes.data)
+              updateMessage(mes)
             }}>update</button>
             <button onClick={() => {
-              deleteMessage(mes.data)
+              deleteMessage(mes)
             }}>del</button>
           </div>
         ))}

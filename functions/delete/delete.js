@@ -5,12 +5,15 @@ require("dotenv").config()
 
 const handler = async (event) => {
   try {
+    if (event.httpMethod !== "POST") {
+      return { statusCode: 405, body: "Method Not Allowed" }
+    }
     const client = new faunadb.Client({ secret: process.env.DB_SECRET })
-
+    const obj = JSON.parse(event.body)
     const result = await client.query(
-      q.Delete(q.Ref(q.Collection("messages"), '281435618325561861'))
+      q.Delete(q.Ref(q.Collection("messages"), obj.id))
     )
-    const subject = event.queryStringParameters.name || 'World'
+
     return {
       statusCode: 200,
       body: JSON.stringify({ message: `delted` }),
