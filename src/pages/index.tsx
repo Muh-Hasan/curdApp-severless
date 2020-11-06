@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react"
 import { Form, Formik, Field } from "formik"
 import TextareaAutosize from "@material-ui/core/TextareaAutosize"
-import { Button } from "@material-ui/core"
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles"
 import Modal from "@material-ui/core/Modal"
+import "./index.css"
 
 function rand() {
   return Math.round(Math.random() * 20) - 10
@@ -42,7 +42,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const [modalStyle] = useState(getModalStyle)
   const [openCreate, setOpenCreate] = useState(false)
-  const [openUpdate , setOpenUpdate] = useState(false)
+  const [openUpdate, setOpenUpdate] = useState(false)
 
   interface Data {
     ref: object
@@ -82,7 +82,6 @@ export default function Home() {
   console.log(updatingData)
   console.log(update)
 
-  
   // create modal functions
   const handleOpenCreate = () => {
     setOpenCreate(true)
@@ -98,7 +97,7 @@ export default function Home() {
   const handleCloseUpdated = () => {
     setOpenUpdate(false)
   }
-  
+
   // body of create modal
   const bodyCreate = (
     <div style={modalStyle} className={classes.paper}>
@@ -146,18 +145,21 @@ export default function Home() {
         onSubmit={(value, actions) => {
           fetch("/.netlify/functions/update", {
             method: "put",
-            body: JSON.stringify({message : value.message , id: updatingData.ref["@ref"].id}),
+            body: JSON.stringify({
+              message: value.message,
+              id: updatingData.ref["@ref"].id,
+            }),
           })
           setFetchData(true)
           actions.resetForm({
             values: {
-              message: '',
+              message: "",
             },
           })
           setFetchData(false)
         }}
         initialValues={{
-          message:  updatingData !== undefined ? updatingData.data.message : '',
+          message: updatingData !== undefined ? updatingData.data.message : "",
         }}
       >
         {formik => (
@@ -179,12 +181,14 @@ export default function Home() {
     </div>
   )
   return (
-    <div>
-      <div>CURD APP</div>
-      <div>
-        <Button color="primary" onClick={handleOpenCreate}>
+    <div className="main">
+      <div className='heading'>
+        <h2>CURD APP</h2>
+      </div>
+      <div className='create-btn'>
+        <button  onClick={handleOpenCreate}>
           Create Message
-        </Button>
+        </button>
       </div>
       <div>
         <Modal
@@ -197,7 +201,7 @@ export default function Home() {
         </Modal>
       </div>
       <div>
-      <Modal
+        <Modal
           open={openUpdate}
           onClose={handleCloseUpdated}
           aria-labelledby="simple-modal-title"
@@ -211,13 +215,13 @@ export default function Home() {
           <h5>loading...</h5>
         </div>
       ) : (
-        <div>
+        <div className='data-display'>
           {data.map((mes, i) => (
             <div key={i}>
               <p>{mes.data.message}</p>
               <button
                 onClick={() => {
-                  handleOpenUpdated() 
+                  handleOpenUpdated()
                   updateMessage(mes.ref["@ref"].id)
                 }}
               >
