@@ -1,16 +1,90 @@
-import React , { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
+import { Form, Formik, Field } from "formik"
 
 export default function Home() {
-  const [data , setData] = useState('')
+  interface Data  {
+    ref : object,
+    ts: number,
+    data : {
+      message : string
+    }
+  }
+  const [data, setData] = useState<null | Data[]>()
+  const [fetchData , setFetchData] = useState(false)
   useEffect(() => {
     (async () => {
-      const fetchedData = await (await fetch('/.netlify/functions/read')).json()
-      setData(fetchedData.message)
+      await fetch("/.netlify/functions/read")
+        .then(res => res.json())
+        .then(data => {
+          console.log(data)
+
+          setData(data)
+        })
     })()
-  })
+  } , [fetchData])
+  const updateMessage = (message) => {
+    console.log(message);
+  }
+  const deleteMessage = (message) => {
+    console.log(message);
+  }
   return (
     <div>
-      <h1>{data}</h1>
+      <div>
+        <h2>CURD APP</h2>
+      </div>
+      <div>
+        <Formik
+          onSubmit={(value, actions) => {
+            console.log(value)
+            fetch("/.netlify/functions/create", {
+              method: "post",
+              body: JSON.stringify(value),
+            })
+            setFetchData(true)
+            actions.resetForm({
+              values: {
+                message: "",
+              },
+            })
+            setFetchData(false)
+          }}
+          initialValues={{
+            message: "",
+          }}
+        >
+          {formik => (
+            <Form onSubmit={formik.handleSubmit}>
+              <Field
+                type="text"
+                name="message"
+                id="message"
+                placeholder="type something..."
+              />
+
+              <button type="submit">add</button>
+            </Form>
+          )}
+        </Formik>
+      </div>
+      {data === null || data === undefined ? (
+      <div>
+        <h5>loading...</h5>
+      </div>) : (
+      <div>
+        {data.map((mes , i) => (
+          <div key={i}>
+            <p>{mes.data.message}</p>
+            <button onClick={() => {
+              updateMessage(mes.data)
+            }}>update</button>
+            <button onClick={() => {
+              deleteMessage(mes.data)
+            }}>del</button>
+          </div>
+        ))}
+      </div>
+      ) }
     </div>
   )
 }

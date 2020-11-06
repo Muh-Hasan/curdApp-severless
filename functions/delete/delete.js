@@ -2,19 +2,18 @@ const faunadb = require("faunadb")
 q = faunadb.query
 require("dotenv").config()
 
-const handler = async event => {
+
+const handler = async (event) => {
   try {
     const client = new faunadb.Client({ secret: process.env.DB_SECRET })
 
-    var result = await client.query(
-      q.Map(
-        q.Paginate(q.Documents(q.Collection("messages"))),
-        q.Lambda(x => q.Get(x))
-      )
+    const result = await client.query(
+      q.Delete(q.Ref(q.Collection("messages"), '281435618325561861'))
     )
+    const subject = event.queryStringParameters.name || 'World'
     return {
       statusCode: 200,
-      body: JSON.stringify(result.data),
+      body: JSON.stringify({ message: `delted` }),
     }
   } catch (error) {
     return { statusCode: 500, body: error.toString() }
