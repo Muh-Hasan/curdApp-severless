@@ -9,10 +9,17 @@ export default function Home() {
       message: string
     }
   }
+  interface Update{
+    ref : object,
+    ts: number,
+    data :object
+  }
   const [data, setData] = useState<null | Data[]>()
   const [fetchData, setFetchData] = useState(false)
+  const [updatingData, setUpdatingData] = useState<null | Update>()
   const [update, setUpdate] = useState(false)
-  const [loading , setLoading] = useState(false)
+  const [loading, setLoading] = useState(false)
+
   useEffect(() => {
     ;(async () => {
       await fetch("/.netlify/functions/read")
@@ -25,13 +32,12 @@ export default function Home() {
     })()
   }, [fetchData])
 
-  const updateMessage = async(message) => {
-    await fetch("/.netlify/functions/update", {
-      method: "post",
-      body: JSON.stringify(message),
-    })
+  const updateMessage = (id: string) => {
+    var updateData = data.filter(mes => mes.ref["@ref"].id === id)
+    setUpdate(true)
+    setUpdatingData(updateData)
   }
-  const deleteMessage = async(message) => {
+  const deleteMessage = async message => {
     setLoading(true)
     await fetch("/.netlify/functions/delete", {
       method: "post",
@@ -40,6 +46,9 @@ export default function Home() {
     setFetchData(true)
     setLoading(false)
   }
+  console.log(updatingData);
+  
+  
   return (
     <div>
       <div>
@@ -48,21 +57,28 @@ export default function Home() {
       <div>
         <Formik
           onSubmit={(value, actions) => {
-            console.log(value)
-            fetch("/.netlify/functions/create", {
-              method: "post",
-              body: JSON.stringify(value),
-            })
-            setFetchData(true)
-            actions.resetForm({
-              values: {
-                message: "",
-              },
-            })
-            setFetchData(false)
+            if (update) {
+              fetch("/.netlify/functions/update", {
+                method: "put",
+                body: JSON.stringify(value),
+              })
+              setUpdate(false)
+            } else {
+              fetch("/.netlify/functions/create", {
+                method: "post",
+                body: JSON.stringify(value),
+              })
+              setFetchData(true)
+              actions.resetForm({
+                values: {
+                  message: '',
+                },
+              })
+              setFetchData(false)
+            }
           }}
           initialValues={{
-            message: "",
+            message: !update ? "" : updatingData[0].data.message,
           }}
         >
           {formik => (
@@ -71,10 +87,8 @@ export default function Home() {
                 type="text"
                 name="message"
                 id="message"
-                placeholder="type something..."
               />
-
-              <button type="submit">add</button>
+              <button type="submit">{update ? 'update' : 'add'}</button>
             </Form>
           )}
         </Formik>
@@ -90,7 +104,7 @@ export default function Home() {
               <p>{mes.data.message}</p>
               <button
                 onClick={() => {
-                  updateMessage(mes)
+                  updateMessage(mes.ref["@ref"].id)
                 }}
               >
                 update
