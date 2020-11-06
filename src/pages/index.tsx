@@ -1,7 +1,49 @@
 import React, { useEffect, useState } from "react"
 import { Form, Formik, Field } from "formik"
+import TextareaAutosize from "@material-ui/core/TextareaAutosize"
+import { Button } from "@material-ui/core"
+import { makeStyles, Theme, createStyles } from "@material-ui/core/styles"
+import Modal from "@material-ui/core/Modal"
+
+function rand() {
+  return Math.round(Math.random() * 20) - 10
+}
+
+function getModalStyle() {
+  const top = 50 + rand()
+  const left = 50 + rand()
+
+  return {
+    top: `${top}%`,
+    left: `${left}%`,
+    transform: `translate(-${top}%, -${left}%)`,
+  }
+}
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    paper: {
+      position: "absolute",
+      width: 400,
+      backgroundColor: theme.palette.background.paper,
+      border: "2px solid #000",
+      boxShadow: theme.shadows[5],
+      padding: theme.spacing(2, 4, 3),
+    },
+  })
+)
 
 export default function Home() {
+  const classes = useStyles()
+  const [data, setData] = useState<null | Data[]>()
+  const [fetchData, setFetchData] = useState(false)
+  const [updatingData, setUpdatingData] = useState(undefined)
+  const [update, setUpdate] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [modalStyle] = useState(getModalStyle)
+  const [openCreate, setOpenCreate] = useState(false)
+  const [openUpdate , setOpenUpdate] = useState(false)
+
   interface Data {
     ref: object
     ts: number
@@ -9,16 +51,6 @@ export default function Home() {
       message: string
     }
   }
-  interface Update{
-    ref : object,
-    ts: number,
-    data :object
-  }
-  const [data, setData] = useState<null | Data[]>()
-  const [fetchData, setFetchData] = useState(false)
-  const [updatingData, setUpdatingData] = useState<null | Update>()
-  const [update, setUpdate] = useState(false)
-  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     ;(async () => {
@@ -33,10 +65,11 @@ export default function Home() {
   }, [fetchData])
 
   const updateMessage = (id: string) => {
-    var updateData = data.filter(mes => mes.ref["@ref"].id === id)
+    var updateData = data.find(mes => mes.ref["@ref"].id === id)
     setUpdate(true)
     setUpdatingData(updateData)
   }
+
   const deleteMessage = async message => {
     setLoading(true)
     await fetch("/.netlify/functions/delete", {
@@ -46,52 +79,132 @@ export default function Home() {
     setFetchData(true)
     setLoading(false)
   }
-  console.log(updatingData);
+  console.log(updatingData)
+  console.log(update)
+
   
+  // create modal functions
+  const handleOpenCreate = () => {
+    setOpenCreate(true)
+  }
+  const handleCloseCreate = () => {
+    setOpenCreate(false)
+  }
+
+  // updated modal functions
+  const handleOpenUpdated = () => {
+    setOpenUpdate(true)
+  }
+  const handleCloseUpdated = () => {
+    setOpenUpdate(false)
+  }
   
+  // body of create modal
+  const bodyCreate = (
+    <div style={modalStyle} className={classes.paper}>
+      <Formik
+        onSubmit={(value, actions) => {
+          fetch("/.netlify/functions/create", {
+            method: "post",
+            body: JSON.stringify(value),
+          })
+          setFetchData(true)
+          actions.resetForm({
+            values: {
+              message: "",
+            },
+          })
+          setFetchData(false)
+        }}
+        initialValues={{
+          message: "",
+        }}
+      >
+        {formik => (
+          <Form onSubmit={formik.handleSubmit}>
+            <Field
+              as={TextareaAutosize}
+              rowsMax={40}
+              type="text"
+              name="message"
+              id="message"
+            />
+            <button type="submit">add</button>
+            <button type="button" onClick={handleCloseCreate}>
+              close
+            </button>
+          </Form>
+        )}
+      </Formik>
+    </div>
+  )
+
+  // body of update modal
+  const bodyUpdate = (
+    <div style={modalStyle} className={classes.paper}>
+      <Formik
+        onSubmit={(value, actions) => {
+          fetch("/.netlify/functions/update", {
+            method: "put",
+            body: JSON.stringify({message : value.message , id: updatingData.ref["@ref"].id}),
+          })
+          setFetchData(true)
+          actions.resetForm({
+            values: {
+              message: '',
+            },
+          })
+          setFetchData(false)
+        }}
+        initialValues={{
+          message:  updatingData !== undefined ? updatingData.data.message : '',
+        }}
+      >
+        {formik => (
+          <Form onSubmit={formik.handleSubmit}>
+            <Field
+              as={TextareaAutosize}
+              rowsMax={40}
+              type="text"
+              name="message"
+              id="message"
+            />
+            <button type="submit">update</button>
+            <button type="button" onClick={handleCloseUpdated}>
+              close
+            </button>
+          </Form>
+        )}
+      </Formik>
+    </div>
+  )
   return (
     <div>
+      <div>CURD APP</div>
       <div>
-        <h2>CURD APP</h2>
+        <Button color="primary" onClick={handleOpenCreate}>
+          Create Message
+        </Button>
       </div>
       <div>
-        <Formik
-          onSubmit={(value, actions) => {
-            if (update) {
-              fetch("/.netlify/functions/update", {
-                method: "put",
-                body: JSON.stringify(value),
-              })
-              setUpdate(false)
-            } else {
-              fetch("/.netlify/functions/create", {
-                method: "post",
-                body: JSON.stringify(value),
-              })
-              setFetchData(true)
-              actions.resetForm({
-                values: {
-                  message: '',
-                },
-              })
-              setFetchData(false)
-            }
-          }}
-          initialValues={{
-            message: !update ? "" : updatingData[0].data.message,
-          }}
+        <Modal
+          open={openCreate}
+          onClose={handleCloseCreate}
+          aria-labelledby="simple-modal-title"
+          aria-describedby="simple-modal-description"
         >
-          {formik => (
-            <Form onSubmit={formik.handleSubmit}>
-              <Field
-                type="text"
-                name="message"
-                id="message"
-              />
-              <button type="submit">{update ? 'update' : 'add'}</button>
-            </Form>
-          )}
-        </Formik>
+          {bodyCreate}
+        </Modal>
+      </div>
+      <div>
+      <Modal
+          open={openUpdate}
+          onClose={handleCloseUpdated}
+          aria-labelledby="simple-modal-title"
+          aria-describedby="simple-modal-description"
+        >
+          {bodyUpdate}
+        </Modal>
       </div>
       {data === null || data === undefined ? (
         <div>
@@ -104,6 +217,7 @@ export default function Home() {
               <p>{mes.data.message}</p>
               <button
                 onClick={() => {
+                  handleOpenUpdated() 
                   updateMessage(mes.ref["@ref"].id)
                 }}
               >
