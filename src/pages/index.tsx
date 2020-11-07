@@ -182,13 +182,11 @@ export default function Home() {
   )
   return (
     <div className="main">
-      <div className='heading'>
-        <h2>CURD APP</h2>
+      <div className="head">
+        <h3>CURD APP</h3>
       </div>
-      <div className='create-btn'>
-        <button  onClick={handleOpenCreate}>
-          Create Message
-        </button>
+      <div className="create-btn">
+        <button onClick={handleOpenCreate}>Create Message</button>
       </div>
       <div>
         <Modal
@@ -215,27 +213,29 @@ export default function Home() {
           <h5>loading...</h5>
         </div>
       ) : (
-        <div className='data-display'>
-          {data.map((mes, i) => (
-            <div key={i}>
-              <p>{mes.data.message}</p>
-              <button
-                onClick={() => {
-                  handleOpenUpdated()
-                  updateMessage(mes.ref["@ref"].id)
-                }}
-              >
-                update
-              </button>
-              <button
-                onClick={() => {
-                  deleteMessage(mes)
-                }}
-              >
-                del
-              </button>
-            </div>
-          ))}
+        <div>
+          <div className="data-display">
+            {data.map((mes, i) => (
+              <div key={i}>
+                <p>{mes.data.message}</p>
+                <button
+                  onClick={() => {
+                    handleOpenUpdated()
+                    updateMessage(mes.ref["@ref"].id)
+                  }}
+                >
+                  update
+                </button>
+                <button
+                  onClick={() => {
+                    deleteMessage(mes)
+                  }}
+                >
+                  del
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

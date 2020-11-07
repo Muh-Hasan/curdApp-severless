@@ -4,37 +4,30 @@
   font-family: "Poppins", sans-serif;
   margin: 0;
 }
-.main {
-  margin: 0 auto;
+.head {
+  text-align: center;
   margin-top: 100px;
-  width: 500px;
-  border: 1px solid;
-  height: auto;
 }
-.heading {
-  text-align: center;
-}
-.heading h2 {
+.head h3 {
   font-size: 35px;
+  font-weight: 500;
   letter-spacing: 1px;
-  font-weight: 600;
 }
-.create-btn {
+.create-btn{
+  margin-top: 10px;
   text-align: center;
-  margin-top: 15px;
-  margin-bottom: 15px;
 }
 .create-btn button {
-text-transform: uppercase;
-  height: 30px;
+  height: 35px;
+  width: 400px;
+  border: 2px solid;
+  background-color: transparent;
   font-size: 15px;
-  width: 259px;
-  font-weight: 400;
+  text-transform: uppercase;
   letter-spacing: 1px;
-  border: none;
-  background: aquamarine;
+  font-weight: 500;
 }
-
-.data-display{
-    margin-left: 10px;
+.create-btn button:hover{
+  background-color: black !important;
+  color: white;
 }
