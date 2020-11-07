@@ -213,8 +213,8 @@ export default function Home() {
           <h5>loading...</h5>
         </div>
       ) : (
-        <div>
-          <div className="data-display">
+        <div  className="data-display">
+          <div className='data-div'>
             {data.map((mes, i) => (
               <div key={i}>
                 <p>{mes.data.message}</p>
@@ -231,7 +231,7 @@ export default function Home() {
                     deleteMessage(mes)
                   }}
                 >
-                  del
+                  delete
                 </button>
               </div>
             ))}
