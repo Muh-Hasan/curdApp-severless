@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { Form, Formik, Field } from "formik"
-import TextareaAutosize from "@material-ui/core/TextareaAutosize"
+import TextField from "@material-ui/core/TextField"
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles"
 import Modal from "@material-ui/core/Modal"
 import "./index.css"
@@ -122,16 +122,22 @@ export default function Home() {
         {formik => (
           <Form onSubmit={formik.handleSubmit}>
             <Field
-              as={TextareaAutosize}
-              rowsMax={40}
+              as={TextField}
+              variant="outlined"
+              rowsMax={4}
+              multiline
               type="text"
               name="message"
+              label="Message"
               id="message"
+              required
             />
-            <button type="submit">add</button>
-            <button type="button" onClick={handleCloseCreate}>
-              close
-            </button>
+            <div className='btn-form'>
+              <button type="submit">add</button>
+              <button type="button" onClick={handleCloseCreate}>
+                close
+              </button>
+            </div>
           </Form>
         )}
       </Formik>
@@ -163,18 +169,23 @@ export default function Home() {
         }}
       >
         {formik => (
-          <Form onSubmit={formik.handleSubmit}>
+          <Form onSubmit={formik.handleSubmit} className="form">
             <Field
-              as={TextareaAutosize}
-              rowsMax={40}
+              as={TextField}
+              multiline
+              rowMax={4}
               type="text"
               name="message"
               id="message"
+              className="field"
             />
+            <div className='btn-form'>
+
             <button type="submit">update</button>
             <button type="button" onClick={handleCloseUpdated}>
               close
             </button>
+            </div>
           </Form>
         )}
       </Formik>
@@ -213,8 +224,8 @@ export default function Home() {
           <h5>loading...</h5>
         </div>
       ) : (
-        <div  className="data-display">
-          <div className='data-div'>
+        <div className="data-display">
+          <div className="data-div">
             {data.map((mes, i) => (
               <div key={i}>
                 <p>{mes.data.message}</p>
