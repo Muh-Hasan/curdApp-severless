@@ -2,8 +2,7 @@ const faunadb = require("faunadb")
 q = faunadb.query
 require("dotenv").config()
 
-
-const handler = async (event) => {
+const handler = async event => {
   try {
     if (event.httpMethod !== "POST") {
       return { statusCode: 405, body: "Method Not Allowed" }

@@ -3,6 +3,7 @@ import { Form, Formik, Field } from "formik"
 import TextField from "@material-ui/core/TextField"
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles"
 import Modal from "@material-ui/core/Modal"
+import CircularProgress from "@material-ui/core/CircularProgress"
 import "./index.css"
 
 function rand() {
@@ -57,8 +58,6 @@ export default function Home() {
       await fetch("/.netlify/functions/read")
         .then(res => res.json())
         .then(data => {
-          console.log(data)
-
           setData(data)
         })
     })()
@@ -66,7 +65,6 @@ export default function Home() {
 
   const updateMessage = (id: string) => {
     var updateData = data.find(mes => mes.ref["@ref"].id === id)
-    setUpdate(true)
     setUpdatingData(updateData)
   }
 
@@ -77,10 +75,7 @@ export default function Home() {
       body: JSON.stringify({ id: message.ref["@ref"].id }),
     })
     setFetchData(true)
-    setLoading(false)
   }
-  console.log(updatingData)
-  console.log(update)
 
   // create modal functions
   const handleOpenCreate = () => {
@@ -114,6 +109,7 @@ export default function Home() {
             },
           })
           setFetchData(false)
+          handleCloseCreate()
         }}
         initialValues={{
           message: "",
@@ -132,7 +128,7 @@ export default function Home() {
               id="message"
               required
             />
-            <div className='btn-form'>
+            <div className="btn-form">
               <button type="submit">add</button>
               <button type="button" onClick={handleCloseCreate}>
                 close
@@ -163,6 +159,7 @@ export default function Home() {
             },
           })
           setFetchData(false)
+          handleCloseUpdated()
         }}
         initialValues={{
           message: updatingData !== undefined ? updatingData.data.message : "",
@@ -179,12 +176,11 @@ export default function Home() {
               id="message"
               className="field"
             />
-            <div className='btn-form'>
-
-            <button type="submit">update</button>
-            <button type="button" onClick={handleCloseUpdated}>
-              close
-            </button>
+            <div className="btn-form">
+              <button type="submit">update</button>
+              <button type="button" onClick={handleCloseUpdated}>
+                close
+              </button>
             </div>
           </Form>
         )}
@@ -220,10 +216,10 @@ export default function Home() {
         </Modal>
       </div>
       {data === null || data === undefined ? (
-        <div>
-          <h5>loading...</h5>
+        <div className="loader">
+          <CircularProgress />
         </div>
-      ) : (
+      ) : data.length >= 1 ? (
         <div className="data-display">
           <div className="data-div">
             {data.map((mes, i) => (
@@ -247,6 +243,10 @@ export default function Home() {
               </div>
             ))}
           </div>
+        </div>
+      ) : (
+        <div className="no-task">
+          <h4>No Task for today</h4>
         </div>
       )}
     </div>

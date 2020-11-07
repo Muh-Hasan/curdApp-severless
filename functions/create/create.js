@@ -3,7 +3,6 @@ q = faunadb.query
 require("dotenv").config()
 
 const handler = async event => {
-  
   try {
     if (event.httpMethod !== "POST") {
       return { statusCode: 405, body: "Method Not Allowed" }
@@ -13,7 +12,7 @@ const handler = async event => {
     let result = await client.query(
       q.Create(q.Collection("messages"), { data: obj })
     )
-    console.log("Entry Created and Inserted in Container: " + result.ref.id);
+    console.log("Entry Created and Inserted in Container: " + result.ref.id)
 
     const subject = event.queryStringParameters.name || "World"
     return {
